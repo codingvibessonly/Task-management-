@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Task Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-pink-500 to-indigo-600 min-h-screen flex items-center justify-center p-4">
+
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8">
+    <h1 class="text-4xl font-extrabold text-center text-indigo-600 mb-6">🌟 Task Manager</h1>
+
+    <!-- Input -->
+    <div class="flex gap-2 mb-6">
+      <input id="taskInput" type="text" placeholder="Enter a new task"
+        class="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-lg shadow focus:outline-none focus:ring-2 focus:ring-pink-400">
+      <button id="addBtn"
+        class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-xl text-lg font-semibold transition transform hover:scale-105">Add</button>
+    </div>
+
+    <!-- Filter buttons -->
+    <div class="flex justify-center gap-3 mb-4">
+      <button id="filterAll" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition">All</button>
+      <button id="filterPending" class="px-3 py-1 bg-yellow-200 rounded hover:bg-yellow-300 transition">Pending</button>
+      <button id="filterCompleted" class="px-3 py-1 bg-green-200 rounded hover:bg-green-300 transition">Completed</button>
+    </div>
+
+    <!-- Task list -->
+    <ul id="taskList" class="space-y-3"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const addBtn = document.getElementById('addBtn');
+    const taskList = document.getElementById('taskList');
+    const filterAll = document.getElementById('filterAll');
+    const filterPending = document.getElementById('filterPending');
+    const filterCompleted = document.getElementById('filterCompleted');
+
+    function createTask(text) {
+      const li = document.createElement('li');
+      li.className = `
+        fade-in 
+        flex items-center justify-between 
+        bg-gradient-to-r from-indigo-100 to-pink-100 
+        rounded-xl px-4 py-3 
+        shadow-lg 
+        transition duration-300 ease-in-out
+        hover:shadow-2xl 
+        hover:scale-105 
+        hover:from-pink-100 hover:to-indigo-100
+      `;
+
+      const left = document.createElement('div');
+      left.className = "flex items-center gap-3";
+
+      const checkbox = document.createElement('input');
+      checkbox.type = "checkbox";
+      checkbox.className = "w-6 h-6 text-green-500 accent-green-500";
+      checkbox.addEventListener('change', () => {
+        li.classList.toggle('line-through');
+        li.classList.toggle('opacity-50');
+        li.dataset.status = checkbox.checked ? "completed" : "pending";
+      });
+
+      const span = document.createElement('span');
+      span.textContent = text;
+      span.className = "text-lg font-medium";
+
+      left.appendChild(checkbox);
+      left.appendChild(span);
+
+      const right = document.createElement('div');
+      right.className = "flex items-center gap-2";
+
+      const dateInput = document.createElement('input');
+      dateInput.type = "date";
+      dateInput.className = "border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-pink-300";
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = "✏️";
+      editBtn.className = "text-blue-500 hover:scale-110 transition";
+      editBtn.addEventListener('click', () => {
+        const newText = prompt("Edit task", span.textContent);
+        if (newText) span.textContent = newText;
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = "❌";
+      delBtn.className = "text-red-500 hover:scale-110 transition";
+      delBtn.addEventListener('click', () => {
+        li.classList.add('opacity-0');
+        setTimeout(() => li.remove(), 300);
+      });
+
+      right.appendChild(dateInput);
+      right.appendChild(editBtn);
+      right.appendChild(delBtn);
+
+      li.appendChild(left);
+      li.appendChild(right);
+
+      li.dataset.status = "pending";
+
+      taskList.appendChild(li);
+    }
+
+    addBtn.addEventListener('click', () => {
+      const text = taskInput.value.trim();
+      if (text) {
+        createTask(text);
+        taskInput.value = "";
+      }
+    });
+
+    [filterAll, filterPending, filterCompleted].forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.id.replace('filter', '').toLowerCase();
+        Array.from(taskList.children).forEach(li => {
+          if (filter === 'all') {
+            li.style.display = 'flex';
+          } else {
+            li.style.display = li.dataset.status === filter ? 'flex' : 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
